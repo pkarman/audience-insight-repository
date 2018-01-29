@@ -42,20 +42,20 @@ $junk = 'image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, application/msword
 $browser->set_content_type("$junk, */*");
 $page = $browser->http_get('');
 is($browser->resp_code(), 200, "ie7 nonsense is supported");
-is($browser->resp_content_type(), 'text/html', 'ie7 nonsense returns html');
+like($browser->resp_content_type(), 'text/html', 'ie7 nonsense returns html');
 
 // if we request the same nonsense without the */*, we should get a 415
 $browser->set_content_type($junk);
 $page = $browser->http_get('');
 is($browser->resp_code(), 415, "ie7 junk request not tolerated");
-is($browser->resp_content_type(), 'text/plain', 'ie7 junk request returns text');
+like($browser->resp_content_type(), 'text/plain', 'ie7 junk request returns text');
 
 // on a refresh, IE7 will request */* instead of the what it requested before,
 // because it can't even be consistently insane.
 $browser->set_content_type('*/*');
 $page = $browser->http_get('');
 is($browser->resp_code(), 200, "ie7 refresh is supported");
-is($browser->resp_content_type(), 'text/html', 'ie7 refresh returns html');
+like($browser->resp_content_type(), 'text/html', 'ie7 refresh returns html');
 
 
 ?>

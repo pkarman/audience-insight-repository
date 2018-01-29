@@ -38,7 +38,7 @@ my $profiles_ini = $etc_dir . "/profiles.ini";
 my $profiles     = Config::IniFiles->new( -file => $profiles_ini );
 my $profile      = $ENV{'AIR2_PROFILE'} || get_profile_name();
 my $version_file = file( $etc_dir, 'my_version' );
-my $version      = '2.x.y';
+my $version      = '2.3.3';
 
 if ( -s $version_file ) {
     chomp( $version = $version_file->slurp );
@@ -103,6 +103,7 @@ sub get_profile  { return $profile }
 
 sub get_profile_val {
     my $v = $profiles->val( $profile, pop(@_) );
+    return $v unless $v;
     $v =~ s/^['"]|['"]$//g;
     return $v;
 }

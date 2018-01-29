@@ -37,7 +37,7 @@ sub _get_cipher {
         $secret .= $secret;
     }
     my $cipher = Crypt::CBC->new(
-        {   'key'            => substr($secret, 0, 32),
+        {   'key'            => substr( $secret, 0, 32 ),
             'cipher'         => 'Cipher::AES',
             'iv'             => Crypt::CBC->random_bytes(16),
             'regenerate_key' => 0,
@@ -73,16 +73,16 @@ sub _decrypt {
     my $hmac       = substr( $tuple, $ivlen, 32 );
     my $ciphertext = substr( $tuple, $ivlen + 32 );
     $cipher->iv($iv);
-    my $plaintext  = $cipher->decrypt($ciphertext);
+    my $plaintext = $cipher->decrypt($ciphertext);
 
     my $test_hmac = hmac_sha256( $ciphertext, $cipher->key() );
 
-    if ($test_hmac ne $hmac) {
-      Carp::confess("HMAC check failed for AuthTkt payload");
+    if ( $test_hmac ne $hmac ) {
+        Carp::confess("HMAC check failed for AuthTkt payload");
     }
 
     #warn "str='$str'";
-    #warn "plaintext:$plaintext";
+    #warn "plaintext: :" . dump($plaintext);
 
     return $plaintext;
 }
@@ -91,7 +91,13 @@ sub parse_ticket {
     my $self  = shift;
     my $parts = $self->SUPER::parse_ticket(@_);
     return $parts unless $parts;
-    $parts->{data} = $self->_decrypt( $parts->{data} ) if $parts->{data};
+    if ( $parts->{data} ) {
+        my $decrypted = $self->_decrypt( $parts->{data} );
+
+        # strip any padding
+        $decrypted =~ s/[^\}]*$//;
+        $parts->{data} = $decrypted;
+    }
     return $parts;
 }
 

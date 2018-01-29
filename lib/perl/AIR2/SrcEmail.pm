@@ -85,13 +85,6 @@ __PACKAGE__->meta->setup(
             type       => 'one to many',
         },
 
-        lyris_src_org_emails => {
-            class      => 'AIR2::SrcOrgEmail',
-            column_map => { sem_id => 'soe_sem_id' },
-            query_args => [ soe_type => 'L' ],
-            type       => 'one to many',
-        },
-
         mailchimp_src_org_emails => {
             class      => 'AIR2::SrcOrgEmail',
             column_map => { sem_id => 'soe_sem_id' },

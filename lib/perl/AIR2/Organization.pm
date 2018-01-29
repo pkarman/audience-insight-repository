@@ -244,7 +244,7 @@ sub get_logo_uri {
 
 =head2 get_mlid
 
-Returns mailing list id for Lyris (EmailLabs) for use with Lyris::API.
+Returns mailing list id.
 
 =cut
 

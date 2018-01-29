@@ -75,7 +75,7 @@ $profile_defs = array(
     array('AIR2_PIN_SSO_LOGOUT',      'https://your.org/sso/logout.cgi'),
 
     // we all need perl
-    array('AIR2_PERL_PATH',           '/usr/bin/perl'),
+    array('AIR2_PERL_PATH',           'perl'),
 
     // forms
     array('AIR2_UPLOAD_SERVER_URL',   'http://your.org/uploads/'),

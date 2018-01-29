@@ -75,6 +75,7 @@ function trec_destruct($proto, $uuid=null) {
 
     if ($stale && $stale->exists()) {
         if (getenv('AIR_DEBUG')) diag("delete()ing stale $name: $uuid");
+        if (getenv('AIR_TEST_KEEP')) return;
 
         try {
             // ACTUALLY ... don't turn off key checks, to get cascading deletes

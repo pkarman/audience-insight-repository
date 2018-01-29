@@ -6,10 +6,11 @@ use Data::Dump qw( dump );
 use Email::Stuffer;
 use Email::Sender::Transport::SMTP;
 use AIR2::Config;
+use Try::Tiny;
 
 use base qw( Rose::ObjectX::CAF );
 
-__PACKAGE__->mk_accessors(qw( debug strict dry_run ));
+__PACKAGE__->mk_accessors(qw( debug strict dry_run error ));
 
 sub sender_email {
     my $self = shift;
@@ -44,11 +45,16 @@ sub send {
     }
     my $smtp = $args{transport} || _smtp_transport();
 
-    my $result = $stuff->transport($smtp)->send();
+    my $result;
+    try {
+        $result = $stuff->transport($smtp)->send_or_die();
+        $self->debug and warn $result;
+    }
+    catch {
+        $self->error($_);
+    };
 
-    $self->debug and warn $result;
-
-    return $result;
+    return $result ? $result : 0;
 }
 
 sub _smtp_transport {

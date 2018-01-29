@@ -33,8 +33,6 @@ use AIR2::AuthTkt;
 use AIR2::SearchUtils;
 use LWP::UserAgent;
 use JSON::XS;
-use Crypt::CBC;
-use HTTP::Engine::Test::Request;
 use IPC::Cmd ();
 
 sub search_env_ok {
@@ -103,11 +101,6 @@ sub dummy_system_tkt {
 
 sub get_server_pid_file {
     return AIR2::Config->get_search_root()->file('var/search-server.pid');
-}
-
-sub new_http_request {
-    my $req = HTTP::Engine::Test::Request->new(@_);
-    return $req;
 }
 
 sub run_it {

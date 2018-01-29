@@ -59,7 +59,7 @@ if (file_exists($my_version)) {
     define('AIR2_VERSION', trim(file_get_contents($my_version)));
 }
 else {
-    define('AIR2_VERSION', '2.x.y');
+    define('AIR2_VERSION', '2.3.3');
 }
 
 // parse profiles ini file

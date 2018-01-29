@@ -72,4 +72,4 @@ is( $rs['code'], AIRAPI::OKAY, 'add home org - okay' );
 
 $rs = $api->create("inquiry/$uuid/organization", array('org_uuid' => $unrelatedOrg->org_uuid));
 is( $rs['code'], AIRAPI::OKAY, 'add home org - okay' );
-diag_dump($rs);
+// diag_dump($rs);

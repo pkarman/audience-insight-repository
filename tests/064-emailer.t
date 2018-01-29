@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Data::Dump qw( dump );
-use Test::More tests => 6;
+use Test::More tests => 5;
 use FindBin;
 use Try::Tiny;
 use lib "$FindBin::Bin/../lib/perl";
@@ -32,20 +32,6 @@ my $sender     = AIR2::Config::get_constant('AIR2_SUPPORT_EMAIL');
 my @deliveries = $test_transport->deliveries;
 like( $deliveries[0]->{email}->get_header("From"),
     qr/$sender/, "email defaults to sender == support" );
-
-# live test with bad From
-
-try {
-    my $live_resp = $emailer->send(
-        to      => 'foo@example.com',
-        subject => 'test rejection',
-        text    => 'hello world',
-        from    => 'badsender@nosuchemail.org',
-    );
-}
-catch {
-    ok( $_, "live send with bad From" );
-};
 
 # trigger error
 $resp = $emailer->send(

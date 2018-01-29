@@ -51,12 +51,12 @@ plan(6);
 
 $page = $browser->http_get('test/exception');
 is($browser->resp_code(), 500, 'HTTP error 500');
-is($browser->resp_content_type(), AirHttpTest::$HTML, 'Returned content type');
+like($browser->resp_content_type(), AirHttpTest::$HTML, 'Returned content type');
 
 // ask for content type AIR can't return
 $page = $browser->http_get('test/exception.nosuchtype');
 is($browser->resp_code(), 415, ".nosuchtype is unsupported");
-is($browser->resp_content_type(), 'text/plain',
+like($browser->resp_content_type(), 'text/plain',
     'unsupported content-type returns text/plain response');
 //diag( $page );
 
@@ -66,7 +66,7 @@ $browser = new AirHttpTest();
 $browser->set_user('testuser', array());
 $page = $browser->http_get('test/view_exception');
 is($browser->resp_code(), 500, "internal server error in View exception");
-is($browser->resp_content_type(), 'text/html',
+like($browser->resp_content_type(), 'text/html',
     'text/html content_type for View exception');
 //diag($page);
 

@@ -63,11 +63,17 @@ function isnt($have, $want, $desc = '') {
 }
 
 function like($have, $want, $desc = '') {
+    if (substr($want, 0, 1) != '/') {
+        $want = '/' . preg_quote($want, '/') . '/';
+    }
     $pass = preg_match($want, $have);
     return _proclaim($pass, $desc, /* todo */ false, $have, $want);
 }
 
 function unlike($have, $want, $desc = '') {
+    if (substr($want, 0, 1) != '/') {
+        $want = '/' . preg_quote($want, '/') . '/';
+    }
     $pass = !preg_match($want, $have);
     return _proclaim($pass, $desc, /* todo */ false, $have, $want, /* negated */ true);
 }

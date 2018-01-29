@@ -1,9 +1,11 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    [% IF base_url.match('^https') %]
     # always require ssl
     RewriteCond %{HTTPS} off
     RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L]
+    [% END %]
 
     # proxy search server
     RewriteRule ^search-admin/(.*)$ [% search_uri %]/$1  [P,L]

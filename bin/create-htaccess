@@ -56,10 +56,14 @@ my $template = Template->new(
 );
 
 my $output;
-$template->process( $template_file,
-    { search_uri => AIR2::Config::get_search_uri, },
-    \$output, { binmode => ':utf8' } )
-    or die $template->error();
+$template->process(
+    $template_file,
+    {   base_url   => AIR2::Config::get_base_url(),
+        search_uri => AIR2::Config::get_search_uri(),
+    },
+    \$output,
+    { binmode => ':utf8' }
+) or die $template->error();
 
 # co-erce into a string of bytes (octets)
 my $htaccess_buffer = Encode::encode( "UTF-8", to_utf8($output) );

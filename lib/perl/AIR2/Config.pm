@@ -113,16 +113,16 @@ sub get_version  { return $version }
 sub get_tmp_dir  { return Path::Class::dir( '/tmp/air2-temp-' . $profile ) }
 
 sub get_smtp_host {
-    return $air2_constants->{AIR2_SMTP_HOST} . ':'
-        . $air2_constants->{AIR2_SMTP_PORT};
+    return get_constant('AIR2_SMTP_HOST') . ':'
+        . get_constant('AIR2_SMTP_PORT');
 }
 
 sub get_smtp_username {
-    return $air2_constants->{AIR2_SMTP_USERNAME};
+    return get_constant('AIR2_SMTP_USERNAME');
 }
 
 sub get_smtp_password {
-    return $air2_constants->{AIR2_SMTP_PASSWORD};
+    return get_constant('AIR2_SMTP_PASSWORD');
 }
 
 sub smtp_host_requires_auth {
@@ -131,16 +131,16 @@ sub smtp_host_requires_auth {
 
 sub get_upload_base_dir {
     my $upload_base
-        = Path::Class::dir( $air2_constants->{AIR2_UPLOAD_BASE_DIR} );
+        = Path::Class::dir( get_constant('AIR2_UPLOAD_BASE_DIR') );
     return $upload_base;
 }
 
 sub get_mypin2_url {
-    return $air2_constants->{AIR2_MYPIN2_URL};
+    return get_constant('AIR2_MYPIN2_URL');
 }
 
 sub get_base_url {
-    return $air2_constants->{AIR2_BASE_URL};
+    return get_constant('AIR2_BASE_URL');
 }
 
 sub get_tandc_queue_root {
@@ -149,12 +149,14 @@ sub get_tandc_queue_root {
 }
 
 sub get_pinsightful_tag {
-    return $air2_constants->{AIR2_PINSIGHTFUL_TAG};
+    return get_constant('AIR2_PINSIGHTFUL_TAG');
 }
 
 sub get_constant {
     my $const = shift or croak "constant name required";
-    return $air2_constants->{$const};
+    my $v = $air2_constants->{$const};
+    $v =~ s/^['"]|['"]$//g;
+    return $v;
 }
 
 sub get_rss_cache_dir {

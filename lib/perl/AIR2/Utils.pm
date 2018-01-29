@@ -165,7 +165,7 @@ sub pack_authz {
         # pack the 32-bit halves seperately
         $packed .= pack( "nNN", $id, $half1, $half2 );
     }
-    return encode_base64($packed);
+    return encode_base64($packed, '');
 }
 
 sub unpack_authz {

@@ -24,6 +24,8 @@ use strict;
 use warnings;
 use base qw( Apache::AuthTkt );
 use Crypt::CBC;
+use Crypt::Cipher::AES;
+use Digest::SHA qw( hmac_sha256 );
 use Carp;
 use Data::Dump qw( dump );
 use MIME::Base64;
@@ -35,9 +37,9 @@ sub _get_cipher {
         $secret .= $secret;
     }
     my $cipher = Crypt::CBC->new(
-        {   'key'            => substr( $secret, 0,  32 ),
-            'cipher'         => 'Rijndael',
-            'iv'             => substr( $secret, 32, 16 ),
+        {   'key'            => substr($secret, 0, 32),
+            'cipher'         => 'Cipher::AES',
+            'iv'             => Crypt::CBC->random_bytes(16),
             'regenerate_key' => 0,
             'padding'        => 'null',
             'prepend_iv'     => 0
@@ -47,61 +49,42 @@ sub _get_cipher {
 }
 
 sub _encrypt {
-    my $self      = shift;
-    my $str       = shift or croak "str required";
-    my $cipher    = $self->_get_cipher;
-    my $encrypted = $cipher->encrypt($str);
-    my $unpacked  = unpack( "H*", $encrypted );
+    my $self       = shift;
+    my $str        = shift or croak "str required";
+    my $cipher     = $self->_get_cipher;
+    my $ciphertext = $cipher->encrypt($str);
+    my $iv         = $cipher->iv();
+    my $hmac       = hmac_sha256( $ciphertext, $cipher->key() );
+    my $encrypted  = encode_base64( $iv . $hmac . $ciphertext, '' );
 
     #warn "str='$str'";
     #warn "encrypted='$encrypted'";
-    #warn "unpacked ='$unpacked'";
 
-    return $unpacked;
+    return $encrypted;
 }
 
 sub _decrypt {
-    my $self      = shift;
-    my $str       = shift or croak "str required";
-    my $packed    = pack( "H*", $str );
-    my $decrypted = $self->_get_cipher->decrypt($packed);
-    $decrypted =~ s/\000$//;
+    my $self       = shift;
+    my $str        = shift or croak "str required";
+    my $tuple      = decode_base64($str);
+    my $cipher     = $self->_get_cipher();
+    my $ivlen      = length( $cipher->iv );
+    my $iv         = substr( $tuple, 0, $ivlen );
+    my $hmac       = substr( $tuple, $ivlen, 32 );
+    my $ciphertext = substr( $tuple, $ivlen + 32 );
+    $cipher->iv($iv);
+    my $plaintext  = $cipher->decrypt($ciphertext);
+
+    my $test_hmac = hmac_sha256( $ciphertext, $cipher->key() );
+
+    if ($test_hmac ne $hmac) {
+      Carp::confess("HMAC check failed for AuthTkt payload");
+    }
 
     #warn "str='$str'";
-    #warn "decrypted='$decrypted'";
+    #warn "plaintext:$plaintext";
 
-    return $decrypted;
-}
-
-sub _get_digest {
-    my ( $self, $ts, $ip_addr, $uid, $tokens, $data, $debug ) = @_;
-    my @ip = split /\./, $ip_addr;
-    my @ts = (
-        ( ( $ts & 0xff000000 ) >> 24 ),
-        ( ( $ts & 0xff0000 ) >> 16 ),
-        ( ( $ts & 0xff00 ) >> 8 ),
-        ( ( $ts & 0xff ) )
-    );
-    my $ipts = pack( "C8", @ip, @ts );
-    if ($data) {
-        $data = $self->_encrypt($data);
-    }
-    my $raw = $ipts . $self->secret . $uid . "\0" . $tokens . "\0" . $data;
-    my $digest_function = $self->_get_digest_function;
-    my $digest0         = $digest_function->($raw);
-    my $digest          = $digest_function->( $digest0 . $self->secret );
-
-    if ($debug) {
-        print STDERR
-            "ts: $ts\nip_addr: $ip_addr\nuid: $uid\ntokens: $tokens\ndata: $data\n";
-        print STDERR "secret: " . $self->secret . "\n";
-        print STDERR "raw: '$raw'\n";
-        my $len = length($raw);
-        print STDERR "digest0: $digest0 (input length $len)\n";
-        print STDERR "digest: $digest\n";
-    }
-
-    return $digest;
+    return $plaintext;
 }
 
 sub parse_ticket {

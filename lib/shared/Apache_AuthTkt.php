@@ -37,6 +37,9 @@ class Apache_AuthTkt {
     );
     private $encrypt_data = false;
 
+    // encryption options
+    public static $CIPHER = 'aes-256-cbc';
+
     /**
      *
      *
@@ -132,6 +135,7 @@ class Apache_AuthTkt {
         if ($expected_digest == $info['digest']) {
             return $info;
         }
+        error_log(var_export($info, true));
         $this->set_err("digest mismatch: $expected_digest " . $info['digest']);
         return null;
     }
@@ -227,9 +231,6 @@ class Apache_AuthTkt {
         }
         foreach ($ts_parts as $tsp) {
             $ipts .= pack("C1", $tsp);
-        }
-        if ($this->encrypt_data) {
-            $data = $this->_mencrypt($data);
         }
         $raw = $ipts . $this->get_secret() . $uid . "\0" . $tokens . "\0" . $data;
         if ($this->digest_type == 'md5') {
@@ -342,13 +343,18 @@ class Apache_AuthTkt {
      * @param unknown $s
      * @return unknown
      */
-    private function _mencrypt($s) {
+    private function _mencrypt($plaintext) {
         $secret = $this->get_secret();
-        while (strlen($secret) < 48) {
+        while (strlen($secret) < 32) {
             $secret .= $secret;
         }
-        $e = mcrypt_cbc(MCRYPT_RIJNDAEL_128, substr($secret, 0, 32) , $s, MCRYPT_ENCRYPT, substr($secret, 32, 16));
-        return bin2hex($e);
+        $secret = substr($secret, 0, 32);
+        $ivlen = openssl_cipher_iv_length(self::$CIPHER);
+        $iv = openssl_random_pseudo_bytes($ivlen);
+        $ciphertext = openssl_encrypt($plaintext, self::$CIPHER, $secret, $options=OPENSSL_RAW_DATA, $iv);
+        $hmac = hash_hmac('sha256', $ciphertext, $secret, $as_binary=true);
+        $encrypted = base64_encode($iv.$hmac.$ciphertext);
+        return $encrypted;
     }
 
 
@@ -359,13 +365,23 @@ class Apache_AuthTkt {
      * @param unknown $s
      * @return unknown
      */
-    private function _mdecrypt($s) {
+    private function _mdecrypt($encrypted) {
         $secret = $this->get_secret();
-        while (strlen($secret) < 48) {
+        while (strlen($secret) < 32) {
             $secret .= $secret;
         }
-        $d = rtrim(mcrypt_cbc(MCRYPT_RIJNDAEL_128, substr($secret, 0, 32) , pack("H*", $s), MCRYPT_DECRYPT, substr($secret, 32, 16)), "\0");
-        return $d;
+        $secret = substr($secret, 0, 32);
+        $encrypted = base64_decode($encrypted);
+        $ivlen = openssl_cipher_iv_length(self::$CIPHER);
+        $iv = substr($encrypted, 0, $ivlen);
+        $hmac = substr($encrypted, $ivlen, $sha2len=32);
+        $ciphertext = substr($encrypted, $ivlen+$sha2len);
+        $plaintext = openssl_decrypt($ciphertext, self::$CIPHER, $secret, $options=OPENSSL_RAW_DATA, $iv);
+        $check_hmac = hash_hmac('sha256', $ciphertext, $secret, $as_binary=true);
+        if (!hash_equals($hmac, $check_hmac)) {
+          throw new Exception("HMAC check failed on AuthTkt payload");
+        }
+        return $plaintext;
     }
 
 

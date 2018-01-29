@@ -29,8 +29,10 @@ ok( $user->set_role_for_org( 'R', $org->org_id ),
     "set user to Reader in org" );
 
 ok( my $tkt = $user->create_tkt(),          "create auth tkt" );
+#diag("tkt:$tkt");
 ok( my $at  = $user->get_new_air2_auth_tkt, "get AIR2::AuthTkt object" );
-ok( $at->valid_ticket($tkt), "ticket is valid" );
+ok( $at->validate_ticket($tkt), "ticket is valid" );
+#diag( dump $at->parse_ticket($tkt) );
 ok( my $authz = AIR2::Utils::unpack_authz(
         decode_json( $at->parse_ticket($tkt)->{data} )->{authz}
     ),
@@ -42,4 +44,3 @@ my $user_authz = $user->get_authz;
 #diag( dump $authz );
 is_deeply( $authz, $user_authz, "authz roundtrip struct" );
 
-#diag( dump $at->parse_ticket($tkt) );

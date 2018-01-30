@@ -29,7 +29,7 @@ css: css-compress
 ### perl dependencies ###
 # (this just identifies which deps need install via CPAN)
 perl-deps: lib/perl/Makefile.PL
-	cd lib/perl && perl Makefile.PL
+	cd lib/perl && perl Makefile.PL && make
 
 deploy: htaccess js css
 

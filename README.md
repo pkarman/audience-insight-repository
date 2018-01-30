@@ -2,7 +2,6 @@ AIR2
 ====
 
 > An open source Audience Insight Repository
-
 > Copyright (c) 2010 - 2013, American Public Media Group
 
 --------
@@ -66,11 +65,6 @@ Then tell AIR2 which server to use by putting the name of your profile in `etc/m
 Now setup the database, fixtures, and assets.  This will also check your installed Perl modules, and determine what you're lacking.
 
     make install
-
-    cd lib/perl
-    cpan -i Module::Install
-    perl Makefile.PL
-    # missing dependencies will be identified, install them from CPAN
 
 If all goes well, all Perl dependencies should be installed for you via CPAN. If there are any failures,
 contact the support address below.

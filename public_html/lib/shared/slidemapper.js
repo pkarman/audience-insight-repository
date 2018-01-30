@@ -24,7 +24,7 @@
 
     // the type of map to use. valid options are: cloudmade / stamen-toner /
     // stamen-terrain / stamen-watercolor / mapquest / mapquest-aerial
-    mapType: 'mapquest',
+    mapType: 'stamen-toner',
 
     // if using cloudmade tiles, provide your apikey here
     apiKey:  null,

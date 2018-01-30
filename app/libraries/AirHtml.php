@@ -55,7 +55,7 @@ class AirHtml {
             'lib/ckeditor/ckeditor.js',
             'lib/shared/leafpile.js',
             'lib/shared/jquery-3.1.1.min.js',
-            'lib/shared/slidemapper.min.js',
+            'lib/shared/slidemapper.js',
             'lib/extjs/plugins/date-time-ux.js',
         );
     }

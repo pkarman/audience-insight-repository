@@ -1,4 +1,5 @@
 ; configuration profiles
+; see all the options in app/config/air2_constants.php
 
 [dev]
 hostname = localhost
@@ -22,6 +23,7 @@ cache_root          = /usr/local/air2/cache
 analytics_acct      = your-google-analytics-key
 email_alerts        = you@your.org
 log_dir             = /var/log/air2
+perl_path           = /usr/bin/perl
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; used for tests only - without these nosuchdbhost entries,

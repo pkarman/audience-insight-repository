@@ -42,101 +42,108 @@ use AIR2Test::Email;
 
 use MailchimpUtils;
 
-# test sources
-my $random_str   = $$;
-my $i            = 0;
-my @test_sources = ();
-while ( $i < 3 ) {
-    push @test_sources, "testsource${i}.$random_str\@nosuchemail.org";
-    $i++;
+SKIP: {
+    skip( "skipping mailchimp", 10 ) unless MailchimpUtils::env_ok();
+
+    # test sources
+    my $random_str   = $$;
+    my $i            = 0;
+    my @test_sources = ();
+    while ( $i < 3 ) {
+        push @test_sources, "testsource${i}.$random_str\@nosuchemail.org";
+        $i++;
+    }
+
+    #
+    # setup an org with some src_org_emails
+    #
+    ok( my $user = AIR2Test::User->new(
+            user_username   => 'i-am-a-test-user',
+            user_first_name => 'i',
+            user_last_name  => 'test',
+            )->load_or_save(),
+        "new test user"
+    );
+    ok( my $org = MailchimpUtils::test_org(), "create test org" );
+    $org->org_sys_id(
+        [ { osid_type => 'M', osid_xuuid => MailchimpUtils::list_id } ] );
+    ok( $org->save, "create test org_sys_id" );
+    ok( my $chimp = MailchimpUtils::client( org => $org ),
+        "create api adaptor" );
+
+    # start clean
+    MailchimpUtils::clear_campaigns;
+    MailchimpUtils::clear_segments;
+    MailchimpUtils::clear_list;
+
+    # setup sources
+    my @sources;
+    for my $e (@test_sources) {
+        my $src = AIR2Test::Source->new( src_username => $e )->load_or_save;
+        push @sources, $src;
+
+        $src->add_src_orgs(
+            [ { so_org_id => $org->org_id, so_status => 'A' } ] );
+        $src->add_emails( [ { sem_email => $e, sem_status => 'G' } ] );
+        $src->save();
+        AIR2::SrcOrgCache::refresh_cache($src);
+
+        my $soe = {
+            soe_org_id      => $org->org_id,
+            soe_status      => 'A',
+            soe_status_dtim => time(),
+            soe_type        => 'M',
+        };
+        $src->emails->[-1]->add_src_org_emails( [$soe] );
+        $src->emails->[-1]->save();
+    }
+
+    # make sure mailchimp is on the same page
+    my $res = $chimp->sync_list( source => \@sources );
+    is_deeply(
+        $res,
+        { ignored => 0, subscribed => 3, cleaned => 0, },
+        "setup subscribers"
+    );
+
+    # test email
+    $user->add_signatures( [ { usig_text => 'blah blah blah' } ] );
+    $user->save();
+    my $email = AIR2Test::Email->new(
+        email_org_id        => $org->org_id,
+        email_usig_id       => $user->signatures->[-1]->usig_id,
+        email_campaign_name => 'Test 005-create-campaign',
+        email_from_name     => $user->user_username,
+        email_from_email    => 'pijdev@mpr.org',
+        email_subject_line  => 'Test 005-create-campaign',
+        email_headline      => 'Test 005-create-campaign',
+        email_body          => 'This is the body of the email',
+    )->save();
+
+    #
+    # YE OLDE TESTS
+    #
+
+    # setup segment
+    my $seg_base = '005-create-campaign';
+    $res = $chimp->make_segment( source => \@sources, name => $seg_base );
+    is( $res->{added},   3, 'segment setup - 3 added' );
+    is( $res->{skipped}, 0, 'segment setup - 0 skipped' );
+    my $segid = $res->{id};
+
+    # create from draft email
+    throws_ok(
+        sub { $chimp->make_campaign( template => $email, segment => $segid ) }
+        ,
+        qr/Email not active/,
+        'from draft - throws exception'
+    );
+    $email->email_status('A');
+    $email->save();
+
+    # create campaign
+    $res = $chimp->make_campaign( template => $email, segment => $segid );
+    ok( $res->{id}, 'campaign created' );
+    is( $res->{count}, 3, 'campaign shows 3 in segment' );
+
 }
-
-#
-# setup an org with some src_org_emails
-#
-ok( my $user = AIR2Test::User->new(
-        user_username   => 'i-am-a-test-user',
-        user_first_name => 'i',
-        user_last_name  => 'test',
-        )->load_or_save(),
-    "new test user"
-);
-ok( my $org = MailchimpUtils::test_org(), "create test org" );
-$org->org_sys_id(
-    [ { osid_type => 'M', osid_xuuid => MailchimpUtils::list_id } ] );
-ok( $org->save, "create test org_sys_id" );
-ok( my $chimp = MailchimpUtils::client( org => $org ), "create api adaptor" );
-
-# start clean
-MailchimpUtils::clear_campaigns;
-MailchimpUtils::clear_segments;
-MailchimpUtils::clear_list;
-
-# setup sources
-my @sources;
-for my $e (@test_sources) {
-    my $src = AIR2Test::Source->new( src_username => $e )->load_or_save;
-    push @sources, $src;
-
-    $src->add_src_orgs( [ { so_org_id => $org->org_id, so_status => 'A' } ] );
-    $src->add_emails( [ { sem_email => $e, sem_status => 'G' } ] );
-    $src->save();
-    AIR2::SrcOrgCache::refresh_cache($src);
-
-    my $soe = {
-        soe_org_id      => $org->org_id,
-        soe_status      => 'A',
-        soe_status_dtim => time(),
-        soe_type        => 'M',
-    };
-    $src->emails->[-1]->add_src_org_emails( [$soe] );
-    $src->emails->[-1]->save();
-}
-
-# make sure mailchimp is on the same page
-my $res = $chimp->sync_list( source => \@sources );
-is_deeply(
-    $res,
-    { ignored => 0, subscribed => 3, cleaned => 0, },
-    "setup subscribers"
-);
-
-# test email
-$user->add_signatures( [ { usig_text => 'blah blah blah' } ] );
-$user->save();
-my $email = AIR2Test::Email->new(
-    email_org_id        => $org->org_id,
-    email_usig_id       => $user->signatures->[-1]->usig_id,
-    email_campaign_name => 'Test 005-create-campaign',
-    email_from_name     => $user->user_username,
-    email_from_email    => 'pijdev@mpr.org',
-    email_subject_line  => 'Test 005-create-campaign',
-    email_headline      => 'Test 005-create-campaign',
-    email_body          => 'This is the body of the email',
-)->save();
-
-#
-# YE OLDE TESTS
-#
-
-# setup segment
-my $seg_base = '005-create-campaign';
-$res = $chimp->make_segment( source => \@sources, name => $seg_base );
-is( $res->{added},   3, 'segment setup - 3 added' );
-is( $res->{skipped}, 0, 'segment setup - 0 skipped' );
-my $segid = $res->{id};
-
-# create from draft email
-throws_ok(
-    sub { $chimp->make_campaign( template => $email, segment => $segid ) },
-    qr/Email not active/,
-    'from draft - throws exception'
-);
-$email->email_status('A');
-$email->save();
-
-# create campaign
-$res = $chimp->make_campaign( template => $email, segment => $segid );
-ok( $res->{id}, 'campaign created' );
-is( $res->{count}, 3, 'campaign shows 3 in segment' );
-

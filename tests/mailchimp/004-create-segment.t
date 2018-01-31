@@ -40,6 +40,9 @@ use AIR2Test::Source;
 
 use MailchimpUtils;
 
+SKIP: {
+    skip( "skipping mailchimp", 17 ) unless MailchimpUtils::env_ok();
+
 # shortcut
 sub compare_list { MailchimpUtils::compare_list(@_) }
 
@@ -172,3 +175,5 @@ is( $res->{added},   1, 'segment single - 1 added' );
 is( $res->{skipped}, 0, 'segment single - 0 skipped' );
 ok( length($long_name) > length( $res->{name} ),
     'long name - name truncated' );
+
+}

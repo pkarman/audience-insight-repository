@@ -59,7 +59,12 @@ $s1->save();
 
 $cleanup = new TestCleanup('email', 'email_campaign_name', '009-transactional-authz.t');
 
-plan(4);
+if (!getenv('AIR2_TEST_MAILCHIMP')) {
+    plan('skip_all', 'set AIR2_TEST_MAILCHIMP to test');
+}
+else {
+    plan(4);
+}
 
 /**********************
  * 1) reader reply

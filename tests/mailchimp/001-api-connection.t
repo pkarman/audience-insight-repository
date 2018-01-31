@@ -33,8 +33,13 @@ use AIR2::Mailchimp;
 
 use MailchimpUtils;
 
-ok( my $chimp = MailchimpUtils::client(), "new AIR2::Mailchimp" );
-ok( $chimp->isa('AIR2::Mailchimp'), 'isa AIR2::Mailchimp' );
-is( ref( $chimp->mailing_list ), 'HASH', 'initialized with mailing list' );
+SKIP: {
+    skip( "skipping mailchimp", 3 ) unless MailchimpUtils::env_ok();
 
-MailchimpUtils::debug_list();
+    ok( my $chimp = MailchimpUtils::client(), "new AIR2::Mailchimp" );
+    ok( $chimp->isa('AIR2::Mailchimp'), 'isa AIR2::Mailchimp' );
+    is( ref( $chimp->mailing_list ), 'HASH',
+        'initialized with mailing list' );
+
+    MailchimpUtils::debug_list();
+}

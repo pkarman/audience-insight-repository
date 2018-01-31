@@ -40,6 +40,9 @@ use AIR2Test::Source;
 
 use MailchimpUtils;
 
+SKIP: {
+    skip( "skipping mailchimp", 35 ) unless MailchimpUtils::env_ok();
+
 # work around mailchimp throttling for frequent sub/unsub changes.
 # this is necessary mostly during development when we are re-running often.
 my $random_tag = $$;
@@ -296,3 +299,5 @@ compare_list(
     },
     "unsubscribed $test_sources[4]"
 );
+
+}

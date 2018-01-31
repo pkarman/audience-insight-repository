@@ -6,6 +6,17 @@ use Data::Dump qw( dump );
 my $API;
 my $LIST_ID = AIR2::Config::get_constant('AIR2_EMAIL_TEST_LIST_ID');
 
+sub env_ok {
+
+    # must explicitly call for search tests (as in smoke tests)
+    # we do this because the in-house tests require a live index.
+    if ( !$ENV{AIR2_TEST_MAILCHIMP} ) {
+        warn "set AIR2_TEST_MAILCHIMP to test mailchimp\n";
+        return 0;
+    }
+    return 1;
+}
+
 sub list_id {$LIST_ID}
 sub debug { $ENV{AIR2_DEBUG} || $ENV{MAILCHIMP_DEBUG} }
 
@@ -42,6 +53,7 @@ sub clear_campaigns {
 }
 
 END {
+    return unless env_ok();
     clear_campaigns();
     clear_segments();
     clear_list();

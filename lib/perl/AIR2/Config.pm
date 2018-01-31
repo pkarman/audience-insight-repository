@@ -156,6 +156,7 @@ sub get_pinsightful_tag {
 sub get_constant {
     my $const = shift or croak "constant name required";
     my $v = $air2_constants->{$const};
+    Carp::cluck("No env $const") if !defined($v);
     $v =~ s/^['"]|['"]$//g;
     return $v;
 }

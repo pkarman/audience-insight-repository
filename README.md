@@ -80,7 +80,7 @@ If you just want to run the tests without resetting the database, try:
 
 You may create a user record or reset a password, usually for admin purposes, with:
 
-    % php bin/set-password.php
+    % php bin/set-passwd.php
 
 Contact
 -------

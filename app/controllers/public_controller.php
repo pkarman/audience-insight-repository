@@ -139,7 +139,7 @@ class Public_Controller extends Base_Controller {
             }
 
             // ok key. log it.
-            $ip_address = $this->input->server('REMOTE_ADDR');
+            $ip_address = $this->input->ip_address();
             $api_stat = new APIStat();
             $api_stat->APIKey = $api_key_rec;
             $api_stat->as_ip_addr = $ip_address;

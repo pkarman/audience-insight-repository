@@ -1,5 +1,5 @@
 ### Common Installation Commands ###
-install:  db-create assets-create db-fixtures js perl-deps htaccess
+install:  db-create assets-create db-fixtures geo-lookup js perl-deps htaccess
 clean: 	  assets-drop search-drop
 reload:   db-reload assets-reload update-schema
 schema:   update-schema
@@ -90,7 +90,7 @@ html: doc/book/air2.xml
 	bin/mk_docs.pl --html
 
 ### Testing Commands ###
-prep-test: db-reset db-fixtures db-seeds search-drop xml indexes search-server-check
+prep-test: db-reset db-fixtures geo-lookup db-seeds search-drop xml indexes search-server-check
 check: tests/Test.php
 	prove -r tests
 sane:  bin/data-sanity.pl

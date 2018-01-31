@@ -212,8 +212,9 @@ for my $i ( ( 0 .. $N_SOURCES ) ) {
         [   {   smadd_state  => 'MN',
                 smadd_zip    => '55106',
                 smadd_county => 'Ramsey',
-                smadd_lat    => '150.00',
-                smadd_long   => '200.01',
+                smadd_lat    => '44.9635',
+                smadd_long   => '-93.0495',
+                smadd_primary_flag => 1,
             },
         ]
     );

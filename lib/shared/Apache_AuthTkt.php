@@ -378,10 +378,14 @@ class Apache_AuthTkt {
         $ciphertext = substr($encrypted, $ivlen+$sha2len);
         $plaintext = openssl_decrypt($ciphertext, self::$CIPHER, $secret, $options=OPENSSL_RAW_DATA, $iv);
         $check_hmac = hash_hmac('sha256', $ciphertext, $secret, $as_binary=true);
-        if (!hash_equals($hmac, $check_hmac)) {
+        if (!$this->hash_equals($hmac, $check_hmac)) {
           throw new Exception("HMAC check failed on AuthTkt payload");
         }
         return $plaintext;
+    }
+
+    private function hash_equals($a, $b) {
+        return substr_count($a ^ $b, "\0") * 2 === strlen($a . $b);
     }
 
 

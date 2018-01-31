@@ -30,7 +30,7 @@ require_once 'AIR2_DBManager.php';
  * Assumes slave as configured is unavailable, so automatic roll over to master.
  */
 
-plan(5);
+plan(6);
 
 ok( AIR2_DBManager::init('nosuchdbhost'), "init db handles");
 
@@ -50,6 +50,7 @@ ok( $master = AIR2_DBManager::get_master_connection(), "get master");
 ok( $slave  = AIR2_DBManager::get_slave_connection(), "get slave");
 is( AIR2_DBManager::get_name($master), AIR2_DBManager::get_name($slave),
    "master == slave");
-//diag(AIR2_DBManager::get_name($master));
+is( AIR2_DBManager::get_name($master), 'nosuchdbhost_master', 'operating on expected profile' );
+// diag(AIR2_DBManager::get_name($master));
 
 ?>

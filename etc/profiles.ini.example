@@ -23,10 +23,21 @@ analytics_acct      = your-google-analytics-key
 email_alerts        = you@your.org
 log_dir             = /var/log/air2
 
-; used for tests only - without this entry some db tests will fail
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; used for tests only - without these nosuchdbhost entries,
+; some db tests will fail
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[nosuchdbhost]
+hostname = nosuchhost
+username = ignored
+password = ignored
+dbname = ignored
+server_time_zone = America/Chicago
+
 [nosuchdbhost_master]
 hostname = localhost
 username = yourusername
 password = yoursecret
 dbname = air2
 server_time_zone = America/Chicago
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

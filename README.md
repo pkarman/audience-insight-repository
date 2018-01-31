@@ -36,7 +36,7 @@ Installation
 
 To install AIR2, place the code somewhere in your Unix filesystem.  Then create a symlink from your webserver's DocumentRoot directory to `public_html`.
 
-    ln -s ~/code/AIR2/public_html /var/www/air2
+    % ln -s ~/code/AIR2/public_html /var/www/air2
 
 Then create a mysql database and user for your AIR2 application to use.
 
@@ -46,7 +46,7 @@ Then create a mysql database and user for your AIR2 application to use.
 
 Copy the example config file to customize for your environment.
 
-    cp etc/profiles.ini.example etc/profiles.ini
+    % cp etc/profiles.ini.example etc/profiles.ini
 
 Create a profile for yourself in `etc/profiles.ini`, filling in your connection info.  There's a whole bunch more stuff you can put in here... see `app/config/air2_constants.php` for a list of them and their default values.
 
@@ -60,16 +60,25 @@ Create a profile for yourself in `etc/profiles.ini`, filling in your connection 
 
 Then tell AIR2 which server to use by putting the name of your profile in `etc/my_profile`.
 
-    echo "my_server_name" > etc/my_profile
+    % echo "my_server_name" > etc/my_profile
 
 Now setup the database, fixtures, and assets.  This will also check your installed Perl modules, and determine what you're lacking.
 
-    make install
+    % make install
 
 If all goes well, all Perl dependencies should be installed for you via CPAN. If there are any failures,
 contact the support address below.
 
-You may create a user record, usually for admin purposes, with:
+You can verify the validity of your install by running the test suite:
+
+    % make smoketest
+
+NOTE that the smoketest will reset your database with seed data so be cautious running the smoketest target.
+If you just want to run the tests without resetting the database, try:
+
+    % make test
+
+You may create a user record or reset a password, usually for admin purposes, with:
 
     % php bin/set-password.php
 

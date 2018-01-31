@@ -200,6 +200,11 @@ AIR2.Search.Facets.WrapperPanel = Ext.extend(Ext.Panel, {
                 sorter = function (a, b) {
                     var aLabel, bLabel;
 
+                    if (!fp.getItemLabel(name, b) || !fp.getItemLabel(name, a)) {
+                      Logger("No item label for name:", name, a, b);
+                      return 0;
+                    }
+
                     aLabel = fp.getItemLabel(name, a).toLowerCase();
                     bLabel = fp.getItemLabel(name, b).toLowerCase();
                     if (aLabel < bLabel) {

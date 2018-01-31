@@ -1,5 +1,5 @@
 ### Common Installation Commands ###
-install:  db-create assets-create db-fixtures geo-lookup js perl-deps htaccess
+install:  db-create assets-create db-fixtures perl-deps geo-lookup js htaccess
 clean: 	  assets-drop search-drop
 reload:   db-reload assets-reload update-schema
 schema:   update-schema

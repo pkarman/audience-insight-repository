@@ -72,6 +72,9 @@ if (!isset($profiles[AIR2_PROFILE])) {
 }
 require_once APPPATH.'config/air2_constants.php';
 
+// timezone for entire app
+date_default_timezone_set(AIR2_SERVER_TIME_ZONE);
+
 // load authorization ini files
 $actions = parse_ini_file(realpath(APPPATH.'config/actions.ini'));
 $roles = parse_ini_file(realpath(APPPATH.'config/roles.ini'), true);
